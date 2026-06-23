@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+/* Enable class-based dark mode (toggle via .dark on <html>) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-brand-50: #eef6ff;
+  --color-brand-100: #d9eaff;
+  --color-brand-200: #bcd9ff;
+  --color-brand-300: #8ec1ff;
+  --color-brand-400: #599dff;
+  --color-brand-500: #3478f6;
+  --color-brand-600: #1f5be0;
+  --color-brand-700: #1a48b5;
+  --color-brand-800: #1b3f8f;
+  --color-brand-900: #1c3a72;
+}
+
+html {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.dark body {
+  background: #0b1120;
+  color: #e2e8f0;
+}
+
+/* Thin scrollbars */
+* {
+  scrollbar-width: thin;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
