@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
 import { useStore } from './store'
+import { useAuth } from './lib/auth'
 import Sidebar from './components/Sidebar'
 import CloudSaveButton from './components/CloudSaveButton'
 import Dashboard from './views/Dashboard'
@@ -16,10 +16,7 @@ export default function App() {
   const toggleEdit = useStore((st) => st.toggleEdit)
   const toggleDark = useStore((st) => st.toggleDark)
   const setSidebar = useStore((st) => st.setSidebar)
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', darkMode)
-  }, [darkMode])
+  const { user, signOut } = useAuth()
 
   return (
     <div className="min-h-screen lg:flex">
@@ -68,6 +65,21 @@ export default function App() {
               title="Dark Mode umschalten"
             >
               {darkMode ? '☀️' : '🌙'}
+            </button>
+            {user?.email && (
+              <span
+                className="hidden max-w-[12rem] truncate text-sm text-slate-500 sm:inline"
+                title={user.email}
+              >
+                {user.email}
+              </span>
+            )}
+            <button
+              onClick={() => signOut()}
+              className="rounded-lg bg-slate-100 px-3 py-1.5 text-sm hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
+              title="Abmelden"
+            >
+              ⎋ <span className="hidden sm:inline">Abmelden</span>
             </button>
           </div>
         </header>

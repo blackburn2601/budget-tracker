@@ -22,7 +22,8 @@ const TABLE = 'budget_snapshots'
 export const isSupabaseConfigured = Boolean(URL && ANON)
 
 let client: SupabaseClient | null = null
-function getClient(): SupabaseClient {
+/** Shared Supabase client. Reused by both data sync and auth (src/lib/auth.tsx). */
+export function getClient(): SupabaseClient {
   if (!client) {
     if (!URL || !ANON) throw new Error('Supabase ist nicht konfiguriert.')
     client = createClient(URL, ANON)
@@ -48,6 +49,10 @@ export async function loadFromCloud(): Promise<Snapshot | null> {
 
 /** Upsert the full snapshot to the cloud. */
 export async function saveToCloud(snapshot: Snapshot): Promise<void> {
+  // Safety guard: never blank the live row with an empty/half-initialized state.
+  if (!snapshot.scenarios?.length) {
+    throw new Error('Speichern abgebrochen: keine Szenarien vorhanden.')
+  }
   const { error } = await getClient()
     .from(TABLE)
     .upsert(
