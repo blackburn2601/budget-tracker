@@ -34,6 +34,7 @@ export function getClient(): SupabaseClient {
 export interface Snapshot {
   scenarios: Scenario[]
   activeScenarioId: string
+  userName?: string
 }
 
 /** Pull the latest snapshot from the cloud. Returns null if no row exists. */

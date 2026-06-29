@@ -12,6 +12,8 @@ import { CATEGORIES, type Scenario } from '../types'
 export default function Settings() {
   const scenarios = useStore((st) => st.scenarios)
   const activeScenarioId = useStore((st) => st.activeScenarioId)
+  const userName = useStore((st) => st.userName)
+  const setUserName = useStore((st) => st.setUserName)
   const replaceAll = useStore((st) => st.replaceAll)
   const resetData = useStore((st) => st.resetData)
   const fileRef = useRef<HTMLInputElement>(null)
@@ -23,9 +25,10 @@ export default function Settings() {
   }
 
   const exportJson = () => {
-    const blob = new Blob([JSON.stringify({ scenarios, activeScenarioId }, null, 2)], {
-      type: 'application/json',
-    })
+    const blob = new Blob(
+      [JSON.stringify({ scenarios, activeScenarioId, userName }, null, 2)],
+      { type: 'application/json' },
+    )
     download(blob, 'budget-tracker.json')
   }
 
@@ -52,6 +55,7 @@ export default function Settings() {
         const list: Scenario[] = parsed.scenarios ?? parsed
         if (!Array.isArray(list) || !list.length) throw new Error('Keine Szenarien gefunden.')
         replaceAll(list, parsed.activeScenarioId)
+        if (typeof parsed.userName === 'string') setUserName(parsed.userName)
         flash('ok', `${list.length} Szenarien importiert.`)
       } catch (e) {
         flash('err', 'Import fehlgeschlagen: ' + (e as Error).message)
@@ -62,7 +66,7 @@ export default function Settings() {
 
   const cloudSave = async () => {
     try {
-      await saveToCloud({ scenarios, activeScenarioId })
+      await saveToCloud({ scenarios, activeScenarioId, userName })
       flash('ok', 'In Supabase gespeichert.')
     } catch (e) {
       flash('err', 'Cloud-Speichern fehlgeschlagen: ' + (e as Error).message)
@@ -73,6 +77,7 @@ export default function Settings() {
       const snap = await loadFromCloud()
       if (!snap) return flash('err', 'Keine Daten in der Cloud gefunden.')
       replaceAll(snap.scenarios, snap.activeScenarioId)
+      if (typeof snap.userName === 'string') setUserName(snap.userName)
       flash('ok', 'Aus Supabase geladen.')
     } catch (e) {
       flash('err', 'Cloud-Laden fehlgeschlagen: ' + (e as Error).message)

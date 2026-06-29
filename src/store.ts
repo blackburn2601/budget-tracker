@@ -15,11 +15,13 @@ interface UIState {
 interface State extends UIState {
   scenarios: Scenario[]
   activeScenarioId: string
+  userName: string
 
   // selectors
   active: () => Scenario | undefined
 
   // ui
+  setUserName: (name: string) => void
   setTab: (t: TabKey) => void
   toggleEdit: () => void
   toggleDark: () => void
@@ -70,6 +72,7 @@ export const useStore = create<State>()(
   persist(
     (set, get) => ({
       ...buildSeed(),
+      userName: 'Lena Bauer',
       activeTab: 'dashboard',
       editMode: false,
       darkMode: false,
@@ -77,6 +80,7 @@ export const useStore = create<State>()(
 
       active: () => get().scenarios.find((s) => s.id === get().activeScenarioId),
 
+      setUserName: (name) => set({ userName: name }),
       setTab: (t) => set({ activeTab: t, sidebarOpen: false }),
       toggleEdit: () => set((st) => ({ editMode: !st.editMode })),
       toggleDark: () => set((st) => ({ darkMode: !st.darkMode })),
@@ -216,6 +220,7 @@ export const useStore = create<State>()(
       partialize: (st) => ({
         scenarios: st.scenarios,
         activeScenarioId: st.activeScenarioId,
+        userName: st.userName,
         darkMode: st.darkMode,
       }),
     },

@@ -7,6 +7,7 @@ type Status = 'idle' | 'saving' | 'ok' | 'err'
 export default function CloudSaveButton() {
   const scenarios = useStore((st) => st.scenarios)
   const activeScenarioId = useStore((st) => st.activeScenarioId)
+  const userName = useStore((st) => st.userName)
   const [status, setStatus] = useState<Status>('idle')
   const [err, setErr] = useState('')
 
@@ -15,7 +16,7 @@ export default function CloudSaveButton() {
     setStatus('saving')
     setErr('')
     try {
-      await saveToCloud({ scenarios, activeScenarioId })
+      await saveToCloud({ scenarios, activeScenarioId, userName })
       setStatus('ok')
       setTimeout(() => setStatus('idle'), 2500)
     } catch (e) {
