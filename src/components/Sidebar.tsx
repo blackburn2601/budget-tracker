@@ -15,6 +15,8 @@ export default function Sidebar() {
   const scenarios = useStore((st) => st.scenarios)
   const activeScenarioId = useStore((st) => st.activeScenarioId)
   const activeTab = useStore((st) => st.activeTab)
+  const userName = useStore((st) => st.userName)
+  const setUserName = useStore((st) => st.setUserName)
   const setActiveScenario = useStore((st) => st.setActiveScenario)
   const setTab = useStore((st) => st.setTab)
   const addScenario = useStore((st) => st.addScenario)
@@ -22,6 +24,7 @@ export default function Sidebar() {
   const renameScenario = useStore((st) => st.renameScenario)
   const deleteScenario = useStore((st) => st.deleteScenario)
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [editingName, setEditingName] = useState(false)
 
   const list = [...scenarios].sort((a, b) => a.order - b.order)
 
@@ -29,9 +32,32 @@ export default function Sidebar() {
     <div className="flex h-full flex-col">
       <div className="flex items-center gap-2.5 px-5 py-5">
         <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand-600 text-lg">💰</span>
-        <div>
+        <div className="min-w-0">
           <div className="text-sm font-bold text-slate-900 dark:text-white">Budget Tracker</div>
-          <div className="text-xs text-slate-400">Max Mustermann</div>
+          {editingName ? (
+            <input
+              autoFocus
+              defaultValue={userName}
+              onBlur={(e) => {
+                setUserName(e.target.value.trim() || userName)
+                setEditingName(false)
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') (e.target as HTMLInputElement).blur()
+                if (e.key === 'Escape') setEditingName(false)
+              }}
+              className="mt-0.5 w-full rounded border border-brand-500 bg-white px-1 py-0.5 text-xs dark:bg-slate-900 dark:text-white"
+            />
+          ) : (
+            <button
+              onClick={() => setEditingName(true)}
+              title="Name bearbeiten"
+              className="group flex items-center gap-1 text-xs text-slate-400 hover:text-brand-600 dark:hover:text-brand-400"
+            >
+              <span className="truncate">{userName || 'Name festlegen'}</span>
+              <span className="opacity-0 transition-opacity group-hover:opacity-100">✎</span>
+            </button>
+          )}
         </div>
       </div>
 

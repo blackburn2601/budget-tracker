@@ -32,6 +32,7 @@ export default function AuthGate({ children }: { children: ReactNode }) {
 function SyncedApp({ children }: { children: ReactNode }) {
   const [phase, setPhase] = useState<'loading' | 'ready' | 'error'>('loading')
   const replaceAll = useStore((s) => s.replaceAll)
+  const setUserName = useStore((s) => s.setUserName)
 
   // 1. Pull the live snapshot first.
   useEffect(() => {
@@ -39,7 +40,10 @@ function SyncedApp({ children }: { children: ReactNode }) {
     loadFromCloud()
       .then((snap) => {
         if (cancelled) return
-        if (snap?.scenarios?.length) replaceAll(snap.scenarios, snap.activeScenarioId)
+        if (snap?.scenarios?.length) {
+          replaceAll(snap.scenarios, snap.activeScenarioId)
+          if (typeof snap.userName === 'string') setUserName(snap.userName)
+        }
         setPhase('ready') // only now is autosave allowed
       })
       .catch(() => {
@@ -48,7 +52,7 @@ function SyncedApp({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true
     }
-  }, [replaceAll])
+  }, [replaceAll, setUserName])
 
   // 2. Debounced autosave, active only after a successful load.
   const timer = useRef<ReturnType<typeof setTimeout>>()
@@ -57,14 +61,15 @@ function SyncedApp({ children }: { children: ReactNode }) {
     const unsub = useStore.subscribe((state, prev) => {
       if (
         state.scenarios === prev.scenarios &&
-        state.activeScenarioId === prev.activeScenarioId
+        state.activeScenarioId === prev.activeScenarioId &&
+        state.userName === prev.userName
       ) {
         return // ignore UI-only changes (tab, dark mode, …)
       }
       clearTimeout(timer.current)
       timer.current = setTimeout(() => {
-        const { scenarios, activeScenarioId } = useStore.getState()
-        saveToCloud({ scenarios, activeScenarioId }).catch(() => {
+        const { scenarios, activeScenarioId, userName } = useStore.getState()
+        saveToCloud({ scenarios, activeScenarioId, userName }).catch(() => {
           /* transient; next change retries */
         })
       }, 1500)
