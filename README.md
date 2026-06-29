@@ -22,9 +22,14 @@ npm run build    # Production-Build nach dist/
 npm run preview  # Build lokal testen
 ```
 
-Die App funktioniert **vollständig ohne Backend** — alle Daten liegen im
-`localStorage`. Beim ersten Start werden die Szenarien (AKTUELL, Ab März 2026,
-… , Haus) mit den Seed-Daten befüllt.
+> **Anmeldung erforderlich:** Die App ist hinter einem Login (Supabase Auth,
+> E-Mail + Passwort) geschützt. Ohne konfiguriertes Supabase und gültige
+> Anmeldung erscheint nur ein Hinweis- bzw. Login-Screen. Einrichtung siehe
+> [Supabase-Cloud-Sync](#supabase-cloud-sync-erforderlich).
+
+Nach der Anmeldung lädt die App den aktuellen Stand aus der Cloud (Source of
+Truth) und speichert Änderungen automatisch zurück. `localStorage` dient nur
+noch als lokaler Cache.
 
 ## Funktionen
 
@@ -38,10 +43,18 @@ Die App funktioniert **vollständig ohne Backend** — alle Daten liegen im
 | **Einstellungen** | JSON/CSV Export, JSON Import, Supabase-Sync, Zurücksetzen |
 | Global | Bearbeiten-Modus, Dark Mode, mobile Sidebar, deutsche Währungsformatierung |
 
-## Supabase-Cloud-Sync (optional)
+## Supabase-Cloud-Sync (erforderlich)
 
-1. SQL aus `supabase/schema.sql` im Supabase-SQL-Editor ausführen.
-2. `.env.example` nach `.env.local` kopieren und Werte eintragen.
-3. Dev-Server neu starten → unter *Einstellungen* erscheinen die Cloud-Buttons.
+1. SQL aus `supabase/schema.sql` im Supabase-SQL-Editor ausführen (legt Tabelle
+   an und setzt die RLS-Policy auf `authenticated`).
+2. In Supabase **öffentliche Registrierung deaktivieren** (Authentication →
+   Providers → Email) und unter Authentication → Users den einen erlaubten
+   Account (E-Mail + Passwort) anlegen.
+3. `.env.example` nach `.env.local` kopieren und `VITE_SUPABASE_URL` /
+   `VITE_SUPABASE_ANON_KEY` eintragen.
+4. Dev-Server starten → es erscheint der Login. Nach Anmeldung lädt der
+   Cloud-Stand und Änderungen werden automatisch gespeichert.
 
-Welche Daten genau benötigt werden, steht weiter unten / in der Antwort des Assistenten.
+> ⚠️ Die Zeile in `budget_snapshots` enthält Live-Daten. Vor Schemaänderungen
+> ein Backup ziehen (`select data from public.budget_snapshots;` oder
+> *Einstellungen → JSON exportieren*).
